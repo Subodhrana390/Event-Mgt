@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import Overview from "./components/overView";
-import PricingTable from "./components/pricing";
-import Description from "./components/description";
-import FiverrQuestions from "./components/requirement";
+import Overview from "./components/OverView";
+import PricingTable from "./components/Pricing";
+import Description from "./components/Description";
+import FiverrQuestions from "./components/Requirement";
 import Gallery from "./components/Gallery";
 import apiClient from "../../api/ApiClient";
 import { useSelector } from "react-redux";
