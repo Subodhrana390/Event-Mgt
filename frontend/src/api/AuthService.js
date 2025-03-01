@@ -1,4 +1,4 @@
-import apiClient from "../api/apiClient";
+import apiClient from "../api/ApiClient";
 import Joi from "joi";
 
 const phoneSchema = Joi.string()
