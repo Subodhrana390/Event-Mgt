@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import apiClient from "../../api/apiClient";
+import apiClient from "../../api/ApiClient";
 
 const BookingService = () => {
   const { serviceId } = useParams(); // Get the service ID from the URL
