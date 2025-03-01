@@ -1,4 +1,4 @@
-import { sendOTPFromTwilio } from "../../../Twillo/twillo.js";
+import { sendOTPFromTwilio } from "../../../twillo/twillo.js";
 import jwt from "jsonwebtoken";
 import { AppError } from "../../utils/AppError.js";
 import { OtpModel } from "../../../Database/models/otp.model.js";
