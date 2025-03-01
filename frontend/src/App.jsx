@@ -5,7 +5,7 @@ import ServiceListing from "./modules/Service/ServiceListing";
 import Login from "./modules/Auth/Login";
 import Home from "./modules/Home/Home";
 import MainLayout from "./modules/MainLayout";
-import CreateService from "./modules/Service/createService";
+import CreateService from "./modules/Service/CreateService";
 import ServiceDetails from "./modules/Service/ServiceDetails";
 import { useDispatch, useSelector } from "react-redux";
 import AdminRoute from "./modules/Auth/AdminRoute";
