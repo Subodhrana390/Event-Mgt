@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export function dbConnection() {
   mongoose
     .connect(
-      "mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.0"
+      "mongodb+srv://admin:admin@cluster0.g8y85oz.mongodb.net/eventMgt?retryWrites=true&w=majority&appName=Cluster0"
     )
     .then(() => {
       console.log("DB Connected Succesfully");
