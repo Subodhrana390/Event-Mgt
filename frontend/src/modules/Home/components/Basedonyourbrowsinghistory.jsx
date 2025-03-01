@@ -3,7 +3,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
-import Card from "./card"; // Import your Card component
+import Card from "./Card"; // Import your Card component
 
 const Basedonyourbrowsinghistory = () => {
   // Create a ref for the Slider component
