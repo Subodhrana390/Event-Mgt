@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import Overview from "./components/OverView";
+import Overview from "./components/Overview";
 import PricingTable from "./components/Pricing";
 import Description from "./components/Description";
 import FiverrQuestions from "./components/Requirement";
