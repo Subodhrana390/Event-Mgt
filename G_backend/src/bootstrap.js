@@ -18,7 +18,7 @@ export function bootstrap(app) {
   app.use("/api/v1/subcategories", subcategoryRouter);
 
   app.all("*", (req, res, next) => {
-    next(new AppError("Endpoint was not found", 404));
+    next(new AppError(404,"Endpoint was not found"));
   });
 
   app.use(globalErrorHandling);
