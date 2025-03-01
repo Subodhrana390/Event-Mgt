@@ -8,7 +8,7 @@ import {
   ShareIcon,
 } from "@heroicons/react/24/solid";
 import { useEffect, useRef, useState } from "react";
-import Card from "../Home/components/card";
+import Card from "../Home/components/Card";
 import Slider from "react-slick";
 import { useParams } from "react-router-dom";
 import CalendarComponent from "./components/CalendarComponent";
