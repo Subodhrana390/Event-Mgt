@@ -6,7 +6,7 @@ import servicesRouter from "./modules/services/services.routes.js";
 import userRouter from "./modules/user/user.routes.js";
 import bookingRouter from "./modules/booking/booking.routes.js";
 import categoryRouter from "./modules/category/category.routes.js";
-import subcategoryRouter from "./modules/subCategory/subcategory.routes.js";
+import subcategoryRouter from "./modules/subcategory/subcategory.routes.js";
 
 export function bootstrap(app) {
   app.use("/api/v1/auth", authRouter);
