@@ -17,11 +17,13 @@ const options = {
     schemes: ["http"],
     consumes: ["application/json"],
     produces: ["application/json"],
-    securityDefinitions: {
-      bearerAuth: {
-        type: "http",
-        scheme: "bearer",
-        bearerFormat: "JWT",
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
       },
     },
     security: [
