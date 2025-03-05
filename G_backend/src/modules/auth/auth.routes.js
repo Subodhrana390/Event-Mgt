@@ -69,7 +69,7 @@ authRouter.route("/verify-otp").post(validate(verifyOTPValidation), verifyOtp);
 
 /**
  * @swagger
- * /auth/refresh-token:
+ * /api/v1/auth/refresh-token:
  *   post:
  *     summary: Refresh authentication token
  *     tags: [Authentication]
@@ -95,7 +95,7 @@ authRouter
 
 /**
  * @swagger
- * /auth/logout:
+ * /api/v1/auth/logout:
  *   post:
  *     summary: Logout user
  *     tags: [Authentication]
