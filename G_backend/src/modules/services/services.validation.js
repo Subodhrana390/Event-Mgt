@@ -126,4 +126,12 @@ const bookDateSchema = Joi.object({
   }),
 });
 
-export { createServiceSchema, updateServiceSchema, bookDateSchema };
+const getServiceByIdSchema = Joi.object({
+  id: Joi.objectId().required().messages({
+    "any.required": "Service ID is required",
+    "string.empty": "Service ID cannot be empty",
+    "string.pattern.base": "Invalid service ID format", // Corrected the pattern message
+  }),
+});
+
+export { createServiceSchema, updateServiceSchema, bookDateSchema ,getServiceByIdSchema};
