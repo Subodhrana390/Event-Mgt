@@ -25,7 +25,6 @@ const ServiceDetails = () => {
       );
       const data = await response.json();
       setService(data);
-      setAvailableDates(data.availableDates);
     } catch (error) {
       console.error("Failed to fetch services", error);
     }
@@ -34,10 +33,6 @@ const ServiceDetails = () => {
   useEffect(() => {
     fetchServices();
   }, []);
-
-  const handleSelectPackage = (pkg) => {
-    setSelectedPackage(pkg);
-  };
 
   const slider2Ref = useRef();
 
@@ -64,48 +59,45 @@ const ServiceDetails = () => {
     ],
   };
 
-  const handleContinue = async (selectedPackage) => {
-    if (!selectedDate) {
-      alert("Please select a date.");
-      return;
-    }
+  // const handleContinue = async (selectedPackage) => {
+  
 
-    try {
-      const bookingData = {
-        service: id, // Service ID from URL
-        packageId: selectedPackage._id, // Package ID
-        amount: selectedPackage.price, // Package price
-        date: selectedDate, // Selected date
-      };
+  //   try {
+  //     const bookingData = {
+  //       service: id, // Service ID from URL
+  //       packageId: selectedPackage._id, // Package ID
+  //       amount: selectedPackage.price, // Package price
+  //       date: selectedDate, // Selected date
+  //     };
 
-      // const bookingResponse = await axios.post("/api/bookings", {
-      //   user: "64f1b2b3c9e77b001f8e4d1a", // Replace with the logged-in user's ID
-      //   service: serviceId,
-      //   date,
-      //   amount: service.price, // Assuming the service has a price field
-      // });
+  //     // const bookingResponse = await axios.post("/api/bookings", {
+  //     //   user: "64f1b2b3c9e77b001f8e4d1a", // Replace with the logged-in user's ID
+  //     //   service: serviceId,
+  //     //   date,
+  //     //   amount: service.price, // Assuming the service has a price field
+  //     // });
 
-      // // Send booking data to the backend
-      // const response = await fetch("http://localhost:3000/api/v1/bookings", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(bookingData),
-      // });
+  //     // // Send booking data to the backend
+  //     // const response = await fetch("http://localhost:3000/api/v1/bookings", {
+  //     //   method: "POST",
+  //     //   headers: {
+  //     //     "Content-Type": "application/json",
+  //     //   },
+  //     //   body: JSON.stringify(bookingData),
+  //     // });
 
-      // if (!response.ok) throw new Error("Failed to book service");
+  //     // if (!response.ok) throw new Error("Failed to book service");
 
-      // const result = await response.json();
-      // console.log("Booking successful:", result);
+  //     // const result = await response.json();
+  //     // console.log("Booking successful:", result);
 
-      // Redirect to a success page or show a success message
-      alert("Booking successful!");
-    } catch (error) {
-      console.error("Booking failed:", error);
-      alert("Booking failed. Please try again.");
-    }
-  };
+  //     // Redirect to a success page or show a success message
+  //     alert("Booking successful!");
+  //   } catch (error) {
+  //     console.error("Booking failed:", error);
+  //     alert("Booking failed. Please try again.");
+  //   }
+  // };
 
   return (
     <div className="relative py-10 px-4 bg-gray-50 sm:px-20 min-h-screen">
