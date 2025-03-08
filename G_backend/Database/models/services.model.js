@@ -12,7 +12,7 @@ const ServiceSchema = new mongoose.Schema(
       required: true,
     },
     category: { type: Schema.Types.ObjectId, ref: "Category" },
-    subcategory: { type: Schema.Types.ObjectId, ref: "Subcategory" },
+    subcategory: { type: Schema.Types.ObjectId, ref: "SubCategory" },
     eventType: [String],
     packages: [
       {

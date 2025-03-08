@@ -16,7 +16,7 @@ import PricingTabs from "./components/PricingTabs";
 
 const ServiceDetails = () => {
   const { id } = useParams();
-  const [service, setService] = useState(null)
+  const [service, setService] = useState(null);
 
   const fetchServices = async () => {
     try {
@@ -60,7 +60,6 @@ const ServiceDetails = () => {
   };
 
   // const handleContinue = async (selectedPackage) => {
-  
 
   //   try {
   //     const bookingData = {
@@ -139,12 +138,7 @@ const ServiceDetails = () => {
         </div>
 
         <div className="col-span-1">
-          {service && (
-            <PricingTabs
-              packages={service?.packages}
-              onContinue={handleContinue}
-            />
-          )}
+          {service && <PricingTabs packages={service?.packages} />}
         </div>
       </div>
 
@@ -265,10 +259,7 @@ const ServiceDetails = () => {
                       </ul>
                     </td>
                     <td className="py-4">
-                      <button
-                        onClick={() => handleSelectPackage(pkg)}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-                      >
+                      <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
                         Select
                       </button>
                     </td>

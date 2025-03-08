@@ -38,8 +38,8 @@ const addSubcategoryToCategory = async (categoryId, subcategoryId) => {
 };
 
 const getAllSubCategories = asyncHandler(async (req, res) => {
-  const category = await CategoryModel.find().populate(
-    "subcategories"
+  const category = await SubcategoryModel.find().populate(
+    "category"
   );
 
   if (!category) {

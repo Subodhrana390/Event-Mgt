@@ -73,8 +73,8 @@ const getAllServices = asyncHandler(async (req, res) => {
   const totalServices = await ServicesModel.countDocuments();
   const services = await ServicesModel.find()
     .populate("seller")
-    .populate("Category")
-    .populate("Subcategory")
+    .populate("category")
+    .populate("subcategory")
     .skip(skip)
     .limit(limit);
 
@@ -91,9 +91,11 @@ const getServiceById = async (req, res) => {
   try {
     const { id } = req.params;
     const service = await ServicesModel.findById(id)
-      .populate("seller")
-      .populate("Category")
-      .populate("Subcategory");
+      .populate("seller", "name email") // Only populate seller's name and email
+      .populate("category", "name icon") // Only populate category's name and icon
+      .populate("subcategory", "name description"); // Only populate subcategory's name and description
+
+    console.log(service);
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }

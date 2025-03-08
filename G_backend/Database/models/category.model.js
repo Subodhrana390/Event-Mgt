@@ -19,7 +19,7 @@ const categorySchema = new Schema(
     subcategories: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Subcategory",
+        ref: "SubCategory",
       },
     ],
   },

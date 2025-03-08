@@ -25,9 +25,6 @@ const servicesRouter = express.Router();
  *     Services:
  *       type: object
  *       properties:
- *         id:
- *           type: string
- *           description: The auto-generated ID of the service
  *         title:
  *           type: string
  *           description: The title of the service
@@ -78,14 +75,17 @@ const servicesRouter = express.Router();
  *             format: date-time
  *         video:
  *           type: string
+ *           format: binary  # Define this as a file
  *         images:
  *           type: array
  *           items:
  *             type: string
+ *             format: binary  # Define each image as a file
  *         documents:
  *           type: array
  *           items:
  *             type: string
+ *             format: binary  # Define each document as a file
  *       example:
  *         id: "605c72efabf21b001f355765"
  *         title: "Photography Service"
@@ -119,6 +119,7 @@ const servicesRouter = express.Router();
  *       201:
  *         description: Service created successfully
  */
+
 servicesRouter.post(
   "/",
   protectedRoutes,

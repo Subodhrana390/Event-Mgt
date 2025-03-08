@@ -21,4 +21,4 @@ const subcategorySchema = new Schema(
   { timestamps: true }
 );
 
-export const SubcategoryModel = model("Subcategory", subcategorySchema);
+export const SubcategoryModel = model("SubCategory", subcategorySchema);
