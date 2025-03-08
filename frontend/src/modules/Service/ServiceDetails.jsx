@@ -144,11 +144,6 @@ const ServiceDetails = () => {
               className="w-full h-auto aspect-video  transform hover:scale-105 transition-transform"
             />
           </div>
-          <div className="bg-white p-6 sm:p-8 rounded-lg shadow-sm mt-8">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">
-              Select a Date
-            </h1>
-          </div>
         </div>
 
         <div className="col-span-1">
