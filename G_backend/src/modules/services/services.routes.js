@@ -109,14 +109,12 @@ const servicesRouter = express.Router();
  *   post:
  *     summary: Create a new service
  *     tags: [Services]
- *     security:
- *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/Service'
+ *             $ref: '#/components/schemas/Services'
  *     responses:
  *       201:
  *         description: Service created successfully

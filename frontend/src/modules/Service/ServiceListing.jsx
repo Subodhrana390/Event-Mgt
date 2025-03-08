@@ -17,7 +17,9 @@ const ServiceListing = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:3000/api/v1/services?page=${pageNum}&pageSize=5`
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }/services?page=${pageNum}&pageSize=5`
       );
       const data = await response.json();
 

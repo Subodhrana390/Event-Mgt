@@ -25,7 +25,7 @@ const ServiceDetails = () => {
   const fetchServices = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/v1/services/${id}`
+        `${import.meta.env.VITE_API_BASE_URL}/services/${id}`
       );
       const data = await response.json();
       setService(data);

@@ -61,8 +61,6 @@ const categoryRouter = Router();
  *     summary: Create a new category
  *     description: Allows admin to create a new category
  *     tags: [Categories]
- *     security:
- *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
