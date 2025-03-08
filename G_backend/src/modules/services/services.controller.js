@@ -73,8 +73,8 @@ const getAllServices = asyncHandler(async (req, res) => {
   const totalServices = await ServicesModel.countDocuments();
   const services = await ServicesModel.find()
     .populate("seller")
-    .populate("category")
-    .populate("subcategory")
+    .populate("Category")
+    .populate("Subcategory")
     .skip(skip)
     .limit(limit);
 
