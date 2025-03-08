@@ -11,16 +11,12 @@ import { useEffect, useRef, useState } from "react";
 import Card from "../Home/components/Card";
 import Slider from "react-slick";
 import { useParams } from "react-router-dom";
-import CalendarComponent from "./components/CalendarComponent";
 import SellerInfo from "./components/SellerInfo";
 import PricingTabs from "./components/PricingTabs";
 
 const ServiceDetails = () => {
   const { id } = useParams();
-  const [service, setService] = useState(null);
-  const [availableDates, setAvailableDates] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [service, setService] = useState(null)
 
   const fetchServices = async () => {
     try {
@@ -152,10 +148,6 @@ const ServiceDetails = () => {
             <h1 className="text-2xl font-bold text-gray-800 mb-4">
               Select a Date
             </h1>
-            <CalendarComponent
-              availableDates={availableDates}
-              onDateSelect={setSelectedDate} // Pass the selected date to state
-            />
           </div>
         </div>
 
