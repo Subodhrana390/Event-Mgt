@@ -92,8 +92,8 @@ const getServiceById = async (req, res) => {
     const { id } = req.params;
     const service = await ServicesModel.findById(id)
       .populate("seller")
-      .populate("category")
-      .populate("subcategory");
+      .populate("Category")
+      .populate("Subcategory");
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
