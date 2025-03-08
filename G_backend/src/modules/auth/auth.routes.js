@@ -53,7 +53,7 @@ authRouter.route("/send-otp").post(validate(sentOTPValidation), sendOtp);
  *           schema:
  *             type: object
  *             properties:
- *               phone:
+ *               phoneNumber:
  *                 type: string
  *                 example: "+911234567890"
  *               otp:
@@ -101,12 +101,23 @@ authRouter
  *     tags: [Authentication]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 example: "your-refresh-token"
  *     responses:
  *       200:
  *         description: Logged out successfully
  *       401:
- *         description: Unauthorized
+ *         description: Unauthorized - Invalid or expired token
  */
+
 authRouter
   .route("/logout")
   .post(protectedRoutes, validate(logoutValidation), logout);

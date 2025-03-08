@@ -23,7 +23,9 @@ const createCategory = asyncHandler(async (req, res) => {
   // Create the category
   const newCategory = await CategoryModel.create({ name, icon, description });
 
-  res.status(201).json(new ApiResponse(201, newCategory, "Category created successfully"));
+  res
+    .status(201)
+    .json(new ApiResponse(201, newCategory, "Category created successfully"));
 });
 
 // Get all categories
@@ -68,11 +70,17 @@ const getCategoryById = async (req, res) => {
 
 // Update a category (Admin only)
 const updateCategory = asyncHandler(async (req, res) => {
-  const { name, avatar, description } = req.body;
+  const { name, description } = req.body;
+  let updatedData = { name, description };
+
+  // Handle file upload (if exists)
+  if (req.file) {
+    updatedData.icon = `${req.file.filename}`;
+  }
 
   const updatedCategory = await CategoryModel.findByIdAndUpdate(
     req.params.id,
-    { name, avatar, description },
+    updatedData,
     { new: true }
   );
 
@@ -83,7 +91,7 @@ const updateCategory = asyncHandler(async (req, res) => {
   res
     .status(200)
     .json(
-      new ApiResponse(200, updatedCategory, "category updated successfully")
+      new ApiResponse(200, updatedCategory, "Category updated successfully")
     );
 });
 

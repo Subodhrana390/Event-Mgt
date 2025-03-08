@@ -20,6 +20,6 @@ const updateCategorySchema = Joi.object({
   description: Joi.string().messages({
     "string.empty": "Description cannot be empty",
   }),
-}).min(1); // Ensure at least one field is provided
+}).min(1);
 
 export { addCategorySchema, updateCategorySchema };

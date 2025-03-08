@@ -10,8 +10,6 @@ const createMulterUploader = (folderName) => {
       else if (file.fieldname == "video")
         cb(null, `uploads/${folderName}/${file.fieldname}`);
       else if (file.fieldname == "icon") cb(null, `uploads/${folderName}`);
-      else if (file.fieldname == "documents")
-        cb(null, `uploads/${folderName}/${file.fieldname}`);
       else cb(null, `uploads/${folderName}`);
     },
     filename: (req, file, cb) => {

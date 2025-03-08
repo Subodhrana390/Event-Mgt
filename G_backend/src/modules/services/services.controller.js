@@ -1,41 +1,24 @@
 import { ServicesModel } from "../../../Database/models/services.model.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { getDatesForCurrentMonth } from "../../utils/dateUtils.js";
+import ApiResponse from "../../utils/ApiResponse.js";
+import { AppError } from "../../utils/AppError.js";
 
-// Create a new service
 const createService = asyncHandler(async (req, res) => {
-  let {
-    title,
-    description,
-    category,
-    subcategory,
-    eventType = "[]",
-    packages = "[]",
-    tags = "[]",
-    faqs = "[]",
-    questions = "[]",
-  } = req.body;
+  let { title, description, category, subcategory, packages, faqs, questions } =
+    req.body;
 
-  const parsedEventType = JSON.parse(eventType) || [];
-  const parsedTags = JSON.parse(tags) || [];
-  const parsedQuestions =
-    JSON.parse(questions)?.map((f) => ({
-      text: f.text,
-      details: f.details,
-    })) || [];
-  const parsedFAQ =
-    JSON.parse(faqs)?.map((f) => ({
-      question: f.question,
-      answer: f.answer,
-    })) || [];
-  const parsedPackages =
-    JSON.parse(packages)?.map((pkg) => ({
-      type: pkg.type,
-      title: pkg.title,
-      description: pkg.description,
-      price: Number(pkg.price) || 0,
-      features: Array.isArray(pkg.features) ? pkg.features : [],
-    })) || [];
+  const eventType = req.body.eventType
+    ? req.body.eventType.split(",").map((item) => item.trim())
+    : [];
+
+  const tags = req.body.tags
+    ? req.body.tags.split(",").map((item) => item.trim())
+    : [];
+
+  const parsedQuestions = JSON.parse(questions);
+  const parsedFAQ = JSON.parse(faqs);
+  const parsedPackages = JSON.parse(packages);
 
   const images = req.files["images"]?.map((file) => file.filename) || [];
   const video = req.files["video"]?.[0]?.filename || null;
@@ -49,100 +32,127 @@ const createService = asyncHandler(async (req, res) => {
     seller: req.user._id,
     category,
     subcategory,
-    eventType: parsedEventType,
+    eventType,
     packages: parsedPackages,
     images,
     video,
     documents,
     faqs: parsedFAQ,
     questions: parsedQuestions,
-    tags: parsedTags,
+    tags,
     availableDates,
   });
 
   const savedService = await newService.save();
-  res.status(201).json({ savedService });
+  res.status(201).json(new ApsavedService());
 });
 
 // Get all services
-const getAllServices = asyncHandler(async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+const getAllServices = asyncHandler(async (req, res, next) => {
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.max(1, parseInt(req.query.limit) || 10);
   const skip = (page - 1) * limit;
 
   const totalServices = await ServicesModel.countDocuments();
-  const services = await ServicesModel.find()
-    .populate("seller")
-    .populate("category")
-    .populate("subcategory")
-    .skip(skip)
-    .limit(limit);
 
-  res.status(200).json({
-    totalPages: Math.ceil(totalServices / limit),
-    currentPage: page,
-    totalServices,
-    services,
-  });
+  const services = await ServicesModel.find()
+    .populate("seller", "name email")
+    .populate("category", "name")
+    .populate("subcategory", "name")
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        totalPages: Math.ceil(totalServices / limit),
+        currentPage: page,
+        totalServices,
+        services,
+      },
+      "Service retrived Successfully"
+    )
+  );
 });
 
 // Get a single service by ID
-const getServiceById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const service = await ServicesModel.findById(id)
-      .populate("seller", "name email") // Only populate seller's name and email
-      .populate("category", "name icon") // Only populate category's name and icon
-      .populate("subcategory", "name description"); // Only populate subcategory's name and description
+const getServiceById = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
 
-    console.log(service);
-    if (!service) {
-      return res.status(404).json({ message: "Service not found" });
-    }
-    res.status(200).json(service);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  const service = await ServicesModel.findById(id)
+    .populate("seller", "name email")
+    .populate("category", "name icon")
+    .populate("subcategory", "name description")
+    .lean();
+
+  if (!service) {
+    throw new AppError(404, "Service not found");
   }
-};
 
-// Update a service by ID
-const updateService = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updateData = req.body;
+  res
+    .status(200)
+    .json(new ApiResponse(200, service, "Service retrived Successfully"));
+});
 
-    const updatedService = await ServicesModel.findByIdAndUpdate(
-      id,
-      updateData,
-      {
-        new: true,
+const updateService = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  let value = { ...req.body };
+
+  if (value.eventType && typeof value.eventType === "string") {
+    value.eventType = value.eventType.split(",").map((item) => item.trim());
+  }
+  if (value.tags && typeof value.tags === "string") {
+    value.tags = value.tags.split(",").map((item) => item.trim());
+  }
+
+  const fieldsToParse = ["packages", "questions", "faqs"];
+  fieldsToParse.forEach((field) => {
+    if (value[field] && typeof value[field] === "string") {
+      try {
+        value[field] = JSON.parse(value[field]);
+      } catch (error) {
+        return next(new AppError(400, `Invalid ${field} format`));
       }
-    )
-      .populate("seller")
-      .populate("reviews");
-
-    if (!updatedService) {
-      return res.status(404).json({ message: "Service not found" });
     }
-    res.status(200).json(updatedService);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+  });
+
+  // Handle file uploads
+  if (req.files) {
+    if (req.files["images"]) {
+      value.images = req.files["images"].map((file) => file.filename);
+    }
+    if (req.files["video"]) {
+      value.video = req.files["video"][0]?.filename || null;
+    }
   }
-};
+
+  const updatedService = await ServicesModel.findByIdAndUpdate(id, value, {
+    new: true,
+    runValidators: true,
+  }).populate("seller category subcategory");
+
+  if (!updatedService) {
+    return next(new AppError(404, "Service not found"));
+  }
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, updatedService, "Service updated successfully"));
+});
 
 // Delete a service by ID
-const deleteService = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deletedService = await ServicesModel.findByIdAndDelete(id);
-    if (!deletedService) {
-      return res.status(404).json({ message: "Service not found" });
-    }
-    res.status(200).json({ message: "Service deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+const deleteService = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const deletedService = await ServicesModel.findByIdAndDelete(id);
+  if (!deletedService) {
+    return res.status(404).json({ message: "Service not found" });
   }
-};
+  res
+    .status(200)
+    .json(new ApiResponse(200, null, "Service deleted successfully"));
+});
 
 // Add current month dates to availableDates
 const addCurrentMonthDates = async (req, res) => {

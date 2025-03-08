@@ -4,6 +4,14 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import { AppError } from "../../utils/AppError.js";
 import ApiResponse from "../../utils/ApiResponse.js";
 
+const addSubcategoryToCategory = async (categoryId, subcategoryId) => {
+  await CategoryModel.findByIdAndUpdate(
+    categoryId,
+    { $push: { subcategories: subcategoryId } },
+    { new: true }
+  );
+};
+
 const createSubCategory = asyncHandler(async (req, res) => {
   const { name, category, description } = req.body;
 
@@ -29,21 +37,11 @@ const createSubCategory = asyncHandler(async (req, res) => {
     );
 });
 
-const addSubcategoryToCategory = async (categoryId, subcategoryId) => {
-  await CategoryModel.findByIdAndUpdate(
-    categoryId,
-    { $push: { subcategories: subcategoryId } },
-    { new: true }
-  );
-};
-
 const getAllSubCategories = asyncHandler(async (req, res) => {
-  const category = await SubcategoryModel.find().populate(
-    "category"
-  );
+  const category = await SubcategoryModel.find();
 
   if (!category) {
-    throw new AppError(404, "Category not found.");
+    throw new AppError(404, "No subcategories found.");
   }
 
   res
@@ -54,22 +52,11 @@ const getAllSubCategories = asyncHandler(async (req, res) => {
 });
 
 const getSubCategoryById = asyncHandler(async (req, res) => {
-  const { categoryId, subcategoryId } = req.params;
+  const { id } = req.params;
 
-  const category = await CategoryModel.findById(categoryId).populate(
-    "subcategories"
-  );
-
-  if (!category) {
-    throw new AppError(404, "Category not found.");
-  }
-
-  const subcategory = category.subcategories.find(
-    (sub) => sub._id.toString() === subcategoryId
-  );
-
+  const subcategory = await SubcategoryModel.findById(id);
   if (!subcategory) {
-    throw new AppError(404, "Subcategory not found.");
+    throw new AppError(404, "subcategory not found.");
   }
 
   res
@@ -79,21 +66,21 @@ const getSubCategoryById = asyncHandler(async (req, res) => {
     );
 });
 
-const updateSubCategory = asyncHandler(async (req, res) => {
-  const { subcategoryId } = req.params;
-  const { name, description } = req.body;
+const updateSubCategory = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const { name, description, category } = req.body;
 
-  const subcategory = await SubcategoryModel.findById(subcategoryId);
-
+  // Find subcategory
+  const subcategory = await SubcategoryModel.findById(id);
   if (!subcategory) {
-    throw new AppError(404, "Subcategory not found.");
+    return next(new AppError(404, "Subcategory not found."));
   }
 
-  subcategory.name = name || subcategory.name;
-  subcategory.description = description || subcategory.description;
+  subcategory.name = name?.trim() || subcategory.name;
+  subcategory.description = description?.trim() || subcategory.description;
+  subcategory.category = category || subcategory.category;
 
   await subcategory.save();
-
   res
     .status(200)
     .json(
@@ -102,20 +89,25 @@ const updateSubCategory = asyncHandler(async (req, res) => {
 });
 
 const deleteSubCategory = asyncHandler(async (req, res) => {
-  const { categoryId, subcategoryId } = req.params;
+  const { id } = req.params;
 
-  const category = await CategoryModel.findById(categoryId);
-
-  if (!category) {
-    throw new AppError(404, "Category not found.");
+  // Find the subcategory first
+  const subcategory = await SubcategoryModel.findById(id);
+  if (!subcategory) {
+    throw new AppError(404, "Subcategory not found.");
   }
 
-  category.subcategories = category.subcategories.filter(
-    (sub) => sub.toString() !== subcategoryId
-  );
-  await category.save();
+  // Find the parent category of this subcategory
+  const category = await CategoryModel.findById(subcategory.category);
+  if (category) {
+    category.subcategories = category.subcategories.filter(
+      (sub) => sub.toString() !== id
+    );
+    await category.save();
+  }
 
-  await SubcategoryModel.findByIdAndDelete(subcategoryId);
+  // Delete the subcategory
+  await SubcategoryModel.findByIdAndDelete(id);
 
   res
     .status(200)

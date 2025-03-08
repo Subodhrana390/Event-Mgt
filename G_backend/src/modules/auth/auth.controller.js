@@ -261,7 +261,7 @@ const allowedTo = (...roles) => {
     if (!roles.includes(req.user.role)) {
       return next(
         new AppError(
-          401,
+          403,
           `You are not authorized to access this route. Your role is ${req.user.role}`
         )
       );

@@ -48,12 +48,7 @@ const ServiceSchema = new mongoose.Schema(
       {
         type: String,
       },
-    ],
-    documents: [
-      {
-        type: String,
-      },
-    ],
+    ]
   },
   { timestamps: true }
 );

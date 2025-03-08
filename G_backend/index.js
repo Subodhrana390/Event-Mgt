@@ -12,6 +12,8 @@ const app = express();
 app.use(cors());
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(morgan("dev"));
 app.use(express.static("uploads"));
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));

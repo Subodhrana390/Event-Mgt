@@ -17,7 +17,7 @@ export const validate = (schema) => {
     if (error) {
       const errorMessage = error.details[0].message;
 
-      return next(new AppError(400, "Validation error", errorMessage));
+      return next(new AppError(400, `Validation error: ${errorMessage}`));
     }
 
     next();

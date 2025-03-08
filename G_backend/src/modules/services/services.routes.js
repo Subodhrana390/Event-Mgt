@@ -12,11 +12,55 @@ import {
   bookDateSchema,
   createServiceSchema,
   updateServiceSchema,
+  validateMongoId,
 } from "./services.validation.js";
 import { validate } from "../../middlewares/validate.js";
 import { allowedTo, protectedRoutes } from "../auth/auth.controller.js";
 import { uploadMultipleFiles } from "../../../multer/multer.js";
 const servicesRouter = express.Router();
+
+servicesRouter.post(
+  "/",
+  protectedRoutes,
+  allowedTo("admin"),
+  uploadMultipleFiles(
+    [
+      { name: "images", maxCount: 3 },
+      { name: "video", maxCount: 1 },
+    ],
+    "services"
+  ),
+  validate(createServiceSchema),
+  createService
+);
+servicesRouter.get("/", getAllServices);
+servicesRouter.get("/:id", validate(validateMongoId), getServiceById);
+servicesRouter.put(
+  "/:id",
+  validate(validateMongoId),
+  protectedRoutes,
+  allowedTo("admin"),
+  uploadMultipleFiles(
+    [
+      { name: "images", maxCount: 3 },
+      { name: "video", maxCount: 1 },
+    ],
+    "services"
+  ),
+  validate(updateServiceSchema),
+  updateService
+);
+servicesRouter.delete(
+  "/:id",
+  validate(validateMongoId),
+  protectedRoutes,
+  allowedTo("admin"),
+  deleteService
+);
+servicesRouter.post("/:id/add-dates", addCurrentMonthDates);
+servicesRouter.post("/:id/book-date", validate(bookDateSchema), bookDate);
+
+export default servicesRouter;
 
 /**
  * @swagger
@@ -114,27 +158,116 @@ const servicesRouter = express.Router();
  *       content:
  *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/Services'
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Title of the service
+ *                 example: "Professional Wedding Photography"
+ *               description:
+ *                 type: string
+ *                 description: Service description
+ *                 example: "Capture your special moments with high-quality photography."
+ *               category:
+ *                 type: string
+ *                 description: Category ID (MongoDB ObjectId)
+ *                 example: "65bc1234abcd5678ef901234"
+ *               subcategory:
+ *                 type: string
+ *                 description: Subcategory ID (MongoDB ObjectId)
+ *                 example: "65bc5678abcd1234ef905678"
+ *               eventType:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: List of event types (Send multiple values as separate keys)
+ *                 example: ["Wedding", "Corporate Event"]
+ *               packages:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: "Standard"
+ *                     title:
+ *                       type: string
+ *                       example: "Basic Package"
+ *                     description:
+ *                       type: string
+ *                       example: "Includes 2-hour session and 50 edited photos."
+ *                     price:
+ *                       type: number
+ *                       example: 199.99
+ *                     features:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["HD Photos", "Free Editing"]
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Search tags for the service
+ *                 example: ["Photography", "Weddings"]
+ *               faqs:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     question:
+ *                       type: string
+ *                       example: "What is the cancellation policy?"
+ *                     answer:
+ *                       type: string
+ *                       example: "Full refund if canceled within 48 hours."
+ *               questions:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     text:
+ *                       type: string
+ *                       example: "Do you offer video coverage?"
+ *                     details:
+ *                       type: string
+ *                       example: "Yes, we provide video coverage as an add-on."
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Image files for the service
+ *               video:
+ *                 type: string
+ *                 format: binary
+ *                 description: Video file for the service
  *     responses:
  *       201:
  *         description: Service created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 201
+ *                 data:
+ *                   $ref: '#/components/schemas/Services'
+ *                 message:
+ *                   type: string
+ *                   example: "Service created successfully"
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *       400:
+ *         description: Bad request (Invalid input)
+ *       401:
+ *         description: Unauthorized (Missing or invalid token)
+ *       500:
+ *         description: Internal Server Error
  */
-
-servicesRouter.post(
-  "/",
-  protectedRoutes,
-  allowedTo("seller"),
-  validate(createServiceSchema),
-  uploadMultipleFiles(
-    [
-      { name: "images", maxCount: 3 },
-      { name: "video", maxCount: 1 },
-      { name: "documents", maxCount: 2 },
-    ],
-    "services"
-  ),
-  createService
-);
 
 /**
  * @swagger
@@ -146,25 +279,83 @@ servicesRouter.post(
  *       200:
  *         description: List of services
  */
-servicesRouter.get("/", getAllServices);
 
 /**
  * @swagger
- * /api/v1/services/{id}:
+ * /api/v1/services:
  *   get:
- *     summary: Get a service by ID
+ *     summary: Get all services
+ *     description: Fetch a list of all available services.
  *     tags: [Services]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
  *     responses:
  *       200:
- *         description: Service retrieved successfully
+ *         description: List of services retrieved successfully.
+ *         content:
+ *           application/json:
+ *             example:
+ *               statusCode: 200
+ *               data:
+ *                 - _id: "67cbda69bb4c8e30304e3222"
+ *                   title: "Event Photography Services"
+ *                   description: "Capturing your special events with professional photography."
+ *                   seller:
+ *                     _id: "67c723526c7607890b25ac76"
+ *                   category:
+ *                     _id: "67cbed9795d8c1bef84749ee"
+ *                     name: "Photography"
+ *                     icon: "http://localhost:3000/category/camera.jpeg"
+ *                   subcategory:
+ *                     _id: "67ba0dd9dce6e4d14af441a9"
+ *                     name: "Event Photographers"
+ *                     description: "Coverage for weddings, concerts, and corporate events."
+ *                   eventType: ["Corporate Events", "Parties", "Conferences"]
+ *                   packages:
+ *                     - type: "Basic"
+ *                       title: "Basic Event Coverage"
+ *                       description: "Covers all the key moments during your event."
+ *                       features: ["Up to 4 hours", "200 photos", "Basic editing"]
+ *                       price: 600
+ *                     - type: "Deluxe"
+ *                       title: "Deluxe Event Coverage"
+ *                       description: "Complete event coverage including candid shots."
+ *                       features: ["Full day coverage", "500+ photos", "Advanced editing", "Printed album"]
+ *                       price: 1500
+ *                   faqs:
+ *                     - question: "Can I request specific shots?"
+ *                       answer: "Yes, we can tailor the shots to your needs."
+ *                     - question: "Do you provide albums?"
+ *                       answer: "We offer printed albums as part of our deluxe package."
+ *                   questions:
+ *                     - text: "How far in advance should I book?"
+ *                       details: "It’s best to book at least 2-3 months in advance for popular dates."
+ *                   rating: 4.9
+ *                   tags: ["event", "photography", "party", "conference"]
+ *                   availableDates: ["2025-05-18T10:00:00Z", "2025-06-30T10:00:00Z"]
+ *                   video: "https://link-to-video.com/video_event.mp4"
+ *                   images:
+ *                     - "https://link-to-image.com/event1.jpg"
+ *                     - "https://link-to-image.com/event2.jpg"
+ *                   documents:
+ *                     - "https://link-to-document.com/event-package.pdf"
+ *               message: "Services retrieved successfully"
+ *               success: true
+ *       404:
+ *         description: No services found.
+ *         content:
+ *           application/json:
+ *             example:
+ *               statusCode: 404
+ *               message: "No services found"
+ *               success: false
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               statusCode: 500
+ *               message: "Internal server error"
+ *               success: false
  */
-servicesRouter.get("/:id", getServiceById);
 
 /**
  * @swagger
@@ -172,35 +363,196 @@ servicesRouter.get("/:id", getServiceById);
  *   put:
  *     summary: Update a service
  *     tags: [Services]
+ *     description: Update an existing service by ID. Supports multipart form-data for file uploads.
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
+ *         description: Service ID (MongoDB ObjectId)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Title of the service
+ *                 example: "Professional Wedding Photography"
+ *               description:
+ *                 type: string
+ *                 description: Service description
+ *                 example: "Capture your special moments with high-quality photography."
+ *               category:
+ *                 type: string
+ *                 description: Category ID (MongoDB ObjectId)
+ *                 example: "65bc1234abcd5678ef901234"
+ *               subcategory:
+ *                 type: string
+ *                 description: Subcategory ID (MongoDB ObjectId)
+ *                 example: "65bc5678abcd1234ef905678"
+ *               eventType:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: List of event types (Send multiple values as separate keys)
+ *                 example: ["Wedding", "Corporate Event"]
+ *               packages:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: "Standard"
+ *                     title:
+ *                       type: string
+ *                       example: "Basic Package"
+ *                     description:
+ *                       type: string
+ *                       example: "Includes 2-hour session and 50 edited photos."
+ *                     price:
+ *                       type: number
+ *                       example: 199.99
+ *                     features:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["HD Photos", "Free Editing"]
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Search tags for the service
+ *                 example: ["Photography", "Weddings"]
+ *               faqs:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     question:
+ *                       type: string
+ *                       example: "What is the cancellation policy?"
+ *                     answer:
+ *                       type: string
+ *                       example: "Full refund if canceled within 48 hours."
+ *               questions:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     text:
+ *                       type: string
+ *                       example: "Do you offer video coverage?"
+ *                     details:
+ *                       type: string
+ *                       example: "Yes, we provide video coverage as an add-on."
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Image files for the service
+ *               video:
+ *                 type: string
+ *                 format: binary
+ *                 description: Video file for the service
  *     responses:
  *       200:
  *         description: Service updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   description: Updated service details
+ *       400:
+ *         description: Bad request (Validation errors or invalid ID)
+ *       401:
+ *         description: Unauthorized (User not authenticated)
+ *       403:
+ *         description: Forbidden (User does not have permission to update this service)
+ *       404:
+ *         description: Service not found
+ *       500:
+ *         description: Internal server error
  */
-servicesRouter.put("/:id", validate(updateServiceSchema), updateService);
 
 /**
  * @swagger
  * /api/v1/services/{id}:
  *   delete:
  *     summary: Delete a service
+ *     description: Allows an admin to delete a service by its ID.
  *     tags: [Services]
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
+ *         description: The ID of the service to delete.
  *     responses:
  *       200:
- *         description: Service deleted successfully
+ *         description: Service deleted successfully.
+ *         content:
+ *           application/json:
+ *             example:
+ *               statusCode: 200
+ *               data: null
+ *               message: Service deleted successfully
+ *               success: true
+ *       400:
+ *         description: Invalid service ID format.
+ *         content:
+ *           application/json:
+ *             example:
+ *               statusCode: 400
+ *               message: Invalid service ID
+ *               success: false
+ *       401:
+ *         description: Unauthorized - User is not logged in.
+ *         content:
+ *           application/json:
+ *             example:
+ *               statusCode: 401
+ *               message: Unauthorized
+ *               success: false
+ *       403:
+ *         description: Forbidden - User does not have permission to delete services.
+ *         content:
+ *           application/json:
+ *             example:
+ *               statusCode: 403
+ *               message: Access denied
+ *               success: false
+ *       404:
+ *         description: Service not found.
+ *         content:
+ *           application/json:
+ *             example:
+ *               statusCode: 404
+ *               message: Service not found
+ *               success: false
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               statusCode: 500
+ *               message: Internal server error
+ *               success: false
  */
-servicesRouter.delete("/:id", deleteService);
 
 /**
  * @swagger
@@ -218,7 +570,6 @@ servicesRouter.delete("/:id", deleteService);
  *       200:
  *         description: Dates added successfully
  */
-servicesRouter.post("/:id/add-dates", addCurrentMonthDates);
 
 /**
  * @swagger
@@ -236,6 +587,3 @@ servicesRouter.post("/:id/add-dates", addCurrentMonthDates);
  *       200:
  *         description: Date booked successfully
  */
-servicesRouter.post("/:id/book-date", validate(bookDateSchema), bookDate);
-
-export default servicesRouter;
