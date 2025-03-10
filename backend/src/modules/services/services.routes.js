@@ -1,15 +1,12 @@
 import express from "express";
 import {
   createService,
-  addCurrentMonthDates,
-  bookDate,
   deleteService,
   getAllServices,
   getServiceById,
   updateService,
 } from "./services.controller.js";
 import {
-  bookDateSchema,
   createServiceSchema,
   updateServiceSchema,
   validateMongoId,
@@ -23,13 +20,7 @@ servicesRouter.post(
   "/",
   protectedRoutes,
   allowedTo("admin"),
-  uploadMultipleFiles(
-    [
-      { name: "images", maxCount: 3 },
-      { name: "video", maxCount: 1 },
-    ],
-    "services"
-  ),
+  uploadMultipleFiles([{ name: "images", maxCount: 3 }], "services"),
   validate(createServiceSchema),
   createService
 );
@@ -40,13 +31,7 @@ servicesRouter.put(
   validate(validateMongoId),
   protectedRoutes,
   allowedTo("admin"),
-  uploadMultipleFiles(
-    [
-      { name: "images", maxCount: 3 },
-      { name: "video", maxCount: 1 },
-    ],
-    "services"
-  ),
+  uploadMultipleFiles([{ name: "images", maxCount: 3 }], "services"),
   validate(updateServiceSchema),
   updateService
 );
@@ -57,8 +42,6 @@ servicesRouter.delete(
   allowedTo("admin"),
   deleteService
 );
-servicesRouter.post("/:id/add-dates", addCurrentMonthDates);
-servicesRouter.post("/:id/book-date", validate(bookDateSchema), bookDate);
 
 export default servicesRouter;
 
@@ -112,24 +95,13 @@ export default servicesRouter;
  *           type: array
  *           items:
  *             type: string
- *         availableDates:
- *           type: array
- *           items:
- *             type: string
- *             format: date-time
  *         video:
  *           type: string
- *           format: binary  # Define this as a file
  *         images:
  *           type: array
  *           items:
  *             type: string
  *             format: binary  # Define each image as a file
- *         documents:
- *           type: array
- *           items:
- *             type: string
- *             format: binary  # Define each document as a file
  *       example:
  *         id: "605c72efabf21b001f355765"
  *         title: "Photography Service"
@@ -210,28 +182,6 @@ export default servicesRouter;
  *                   type: string
  *                 description: Search tags for the service
  *                 example: ["Photography", "Weddings"]
- *               faqs:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     question:
- *                       type: string
- *                       example: "What is the cancellation policy?"
- *                     answer:
- *                       type: string
- *                       example: "Full refund if canceled within 48 hours."
- *               questions:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     text:
- *                       type: string
- *                       example: "Do you offer video coverage?"
- *                     details:
- *                       type: string
- *                       example: "Yes, we provide video coverage as an add-on."
  *               images:
  *                 type: array
  *                 items:
@@ -269,16 +219,6 @@ export default servicesRouter;
  *         description: Internal Server Error
  */
 
-/**
- * @swagger
- * /api/v1/services:
- *   get:
- *     summary: Get all services
- *     tags: [Services]
- *     responses:
- *       200:
- *         description: List of services
- */
 
 /**
  * @swagger
@@ -320,14 +260,6 @@ export default servicesRouter;
  *                       description: "Complete event coverage including candid shots."
  *                       features: ["Full day coverage", "500+ photos", "Advanced editing", "Printed album"]
  *                       price: 1500
- *                   faqs:
- *                     - question: "Can I request specific shots?"
- *                       answer: "Yes, we can tailor the shots to your needs."
- *                     - question: "Do you provide albums?"
- *                       answer: "We offer printed albums as part of our deluxe package."
- *                   questions:
- *                     - text: "How far in advance should I book?"
- *                       details: "It’s best to book at least 2-3 months in advance for popular dates."
  *                   rating: 4.9
  *                   tags: ["event", "photography", "party", "conference"]
  *                   availableDates: ["2025-05-18T10:00:00Z", "2025-06-30T10:00:00Z"]
@@ -356,6 +288,122 @@ export default servicesRouter;
  *               message: "Internal server error"
  *               success: false
  */
+
+/**
+ * @swagger
+ * /api/v1/services/{id}:
+ *   get:
+ *     summary: Get service details by ID
+ *     tags: [Services]
+ *     description: Retrieve details of a specific service by its ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Service ID (MongoDB ObjectId)
+ *     responses:
+ *       200:
+ *         description: Service details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: "65bc1234abcd5678ef901234"
+ *                     title:
+ *                       type: string
+ *                       example: "Professional Wedding Photography"
+ *                     description:
+ *                       type: string
+ *                       example: "Capture your special moments with high-quality photography."
+ *                     category:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                           example: "65bc1234abcd5678ef901234"
+ *                         name:
+ *                           type: string
+ *                           example: "Photography"
+ *                     subcategory:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                           example: "65bc5678abcd1234ef905678"
+ *                         name:
+ *                           type: string
+ *                           example: "Wedding Photography"
+ *                     eventType:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["Wedding", "Corporate Event"]
+ *                     packages:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           type:
+ *                             type: string
+ *                             example: "Standard"
+ *                           title:
+ *                             type: string
+ *                             example: "Basic Package"
+ *                           description:
+ *                             type: string
+ *                             example: "Includes 2-hour session and 50 edited photos."
+ *                           price:
+ *                             type: number
+ *                             example: 199.99
+ *                           features:
+ *                             type: array
+ *                             items:
+ *                               type: string
+ *                             example: ["HD Photos", "Free Editing"]
+ *                     tags:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["Photography", "Weddings"]
+ *                     images:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["image1.jpg", "image2.jpg"]
+ *                     video:
+ *                       type: string
+ *                       example: "service-video.mp4"
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2024-03-10T12:00:00Z"
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2024-03-12T14:30:00Z"
+ *       400:
+ *         description: Bad request (Invalid ID format)
+ *       401:
+ *         description: Unauthorized (User not authenticated)
+ *       403:
+ *         description: Forbidden (User does not have permission to view this service)
+ *       404:
+ *         description: Service not found
+ *       500:
+ *         description: Internal server error
+ */
+
 
 /**
  * @swagger
@@ -552,38 +600,4 @@ export default servicesRouter;
  *               statusCode: 500
  *               message: Internal server error
  *               success: false
- */
-
-/**
- * @swagger
- * /api/v1/services/{id}/add-dates:
- *   post:
- *     summary: Add current month dates
- *     tags: [Services]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Dates added successfully
- */
-
-/**
- * @swagger
- * /api/v1/services/{id}/book-date:
- *   post:
- *     summary: Book a date
- *     tags: [Services]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Date booked successfully
  */

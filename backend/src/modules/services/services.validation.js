@@ -49,18 +49,9 @@ const updateServiceSchema = Joi.object({
   video: Joi.any().optional(),
 });
 
-// Validation schema for booking a date
-const bookDateSchema = Joi.object({
-  bookedDate: Joi.date().iso().required().messages({
-    "any.required": "Booked date is required",
-    "date.base": "Invalid date format",
-    "date.iso": "Date must be in ISO format (YYYY-MM-DD)",
-  }),
-});
 
 export {
   createServiceSchema,
   updateServiceSchema,
-  bookDateSchema,
   validateMongoId,
 };

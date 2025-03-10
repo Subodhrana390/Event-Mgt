@@ -23,32 +23,14 @@ const ServiceSchema = new mongoose.Schema(
         price: { type: Number },
       },
     ],
-    faqs: [
-      {
-        question: { type: String },
-        answer: { type: String },
-      },
-    ],
-    questions: [
-      {
-        text: { type: String },
-        details: { type: String },
-      },
-    ],
     rating: { type: Number, default: 0 },
     tags: [String],
-    availableDates: {
-      type: [Date],
-      default: [],
-    },
-    video: {
-      type: String,
-    },
     images: [
       {
         type: String,
       },
-    ]
+    ],
+    video: String,
   },
   { timestamps: true }
 );
@@ -57,16 +39,6 @@ ServiceSchema.pre("save", function (next) {
   if (this.images && Array.isArray(this.images)) {
     this.images = this.images.map((img) =>
       img.startsWith("http") ? img : `${BASE_URL}services/images/${img}`
-    );
-  }
-
-  if (this.video && !this.video.startsWith("http")) {
-    this.video = `${BASE_URL}services/video/${this.video}`;
-  }
-
-  if (this.documents && Array.isArray(this.documents)) {
-    this.documents = this.documents.map((doc) =>
-      doc.startsWith("http") ? doc : `${BASE_URL}services/documents/${doc}`
     );
   }
 
